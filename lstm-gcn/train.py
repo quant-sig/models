@@ -86,7 +86,14 @@ class StarPlatinum(QCAlgorithm):
                 }, f'checkpoint_{epoch}.pt')
         
     def OnData(self, data):
-        if not (self.es_futures.Current and self.vx_futures.Current):
+        if not (data.ContainsKey(self.es_futures.Symbol) and data.ContainsKey(self.vx_futures.Symbol)):
+            return
+
+        # Get the chains
+        es_chain = self.es_futures.CurrentCandles
+        vx_chain = self.vx_futures.CurrentCandles
+        
+        if es_chain is None or vx_chain is None:
             return
 
         # Get features
@@ -139,27 +146,36 @@ class StarPlatinum(QCAlgorithm):
 
     def get_features(self):
         features = []
+        
+        # Get the chains
+        es_chain = [x for x in self.es_futures.Chain 
+                    if x.Expiry > self.Time]
+        vx_chain = [x for x in self.vx_futures.Chain 
+                    if x.Expiry > self.Time]
+        
+        # Sort by expiry
+        es_chain.sort(key=lambda x: x.Expiry)
+        vx_chain.sort(key=lambda x: x.Expiry)
+        
         # Get next 4 ES contracts
-        es_contracts = [c for c in self.es_futures.Chain 
-                       if c.Expiry > self.Time][:4]
+        es_contracts = es_chain[:4]
         # Get next 8 VX contracts
-        vx_contracts = [c for c in self.vx_futures.Chain 
-                       if c.Expiry > self.Time][:8]
+        vx_contracts = vx_chain[:8]
         
         if len(es_contracts) < 4 or len(vx_contracts) < 8:
             return None
             
         # ES contracts
         for contract in es_contracts:
-            if contract.Price == 0:
+            if contract.LastPrice == 0:  # Changed from Price to LastPrice
                 return None
-            features.append(contract.Price)
+            features.append(contract.LastPrice)
             
         # VX contracts
         for contract in vx_contracts:
-            if contract.Price == 0:
+            if contract.LastPrice == 0:  # Changed from Price to LastPrice
                 return None
-            features.append(contract.Price)
+            features.append(contract.LastPrice)
             
         return features
 
