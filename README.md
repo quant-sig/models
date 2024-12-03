@@ -15,5 +15,5 @@ Inspired by ML model implementations by lucidrains.
 ## Implemented models:
 Model|Predicts|Paper Link
 -----|--------|----------
-[LSTM-GCN](https://github.com/quant-sig/models/lstm-gcn)|Returns, Volatility, Trading Volume|https://arxiv.org/abs/2408.05659v1
+[LSTM-GCN](https://github.com/quant-sig/models/tree/main/gcn-lstm)|Returns, Volatility, Trading Volume|https://arxiv.org/abs/2408.05659v1
 
